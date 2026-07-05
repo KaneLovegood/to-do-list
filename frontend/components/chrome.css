@@ -1,0 +1,159 @@
+.navbar,
+.footer {
+  background: var(--blush);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
+}
+
+.navbar {
+  min-height: 62px;
+}
+
+.navbar__inner,
+.footer__inner {
+  width: min(calc(100% - 32px), 1120px);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar__inner {
+  min-height: 62px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: 1.75rem;
+  white-space: nowrap;
+}
+
+.brand__mark {
+  display: grid;
+  width: 39px;
+  height: 39px;
+  place-items: center;
+  border-radius: 999px;
+  color: #141411;
+  background: var(--salmon);
+  font-size: 1.25rem;
+  box-shadow: inset 5px 3px 0 rgb(255 255 255 / 25%);
+}
+
+.brand--compact {
+  gap: 6px;
+  font-size: 1.1rem;
+}
+
+.brand--compact .brand__mark {
+  width: 25px;
+  height: 25px;
+  font-size: .82rem;
+}
+
+.navbar__avatar {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: grayscale(1);
+}
+
+.footer {
+  margin-top: auto;
+}
+
+.footer__inner {
+  min-height: 66px;
+  gap: 20px;
+}
+
+.footer p {
+  margin: 0;
+  color: #0a142f;
+  font-size: .78rem;
+  text-align: center;
+}
+
+.footer__socials {
+  display: flex;
+  gap: 9px;
+}
+
+.footer__socials a {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(10 20 47 / 20%);
+  border-radius: 50%;
+  color: #0a142f;
+  font-size: .64rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.footer__socials a:hover {
+  background: #fff;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .navbar,
+  .navbar__inner {
+    min-height: 40px;
+  }
+
+  .navbar__inner,
+  .footer__inner {
+    width: min(calc(100% - 30px), 520px);
+  }
+
+  .brand {
+    gap: 7px;
+    font-size: 1.45rem;
+  }
+
+  .brand__mark {
+    width: 29px;
+    height: 29px;
+    font-size: 1rem;
+  }
+
+  .navbar__avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .footer__inner {
+    min-height: 48px;
+    gap: 8px;
+  }
+
+  .footer .brand {
+    font-size: .8rem;
+  }
+
+  .footer .brand__mark {
+    width: 18px;
+    height: 18px;
+    font-size: .6rem;
+  }
+
+  .footer p {
+    font-size: .58rem;
+  }
+
+  .footer__socials {
+    gap: 6px;
+  }
+
+  .footer__socials a {
+    width: 19px;
+    height: 19px;
+    font-size: .45rem;
+  }
+}

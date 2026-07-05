@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is the Next.js frontend for the todo application. It reads and mutates todos through the NestJS backend.
+
+## Environment
+
+Copy `.env.example` to `.env.local` if the backend is not running at the default `http://localhost:3001` address.
+
+```env
+BACKEND_URL=http://localhost:3001
+```
+
+Run the NestJS backend before starting this app. Browser requests to `/api/*` are proxied to the backend by `next.config.ts`.
 
 ## Getting Started
 
