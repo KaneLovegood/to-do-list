@@ -62,6 +62,7 @@ export class TodosService implements OnModuleInit {
 
   async create(
     dto: CreateTodoDto,
+    userId: string,
     files?: Express.Multer.File[],
   ): Promise<TodoResponse> {
     this.validateFiles(files);
@@ -86,6 +87,7 @@ export class TodosService implements OnModuleInit {
       imagePublicId: uploadedImages[0]?.publicId ?? null,
       imageUrls: uploadedImages.map((img) => img.url),
       imagePublicIds: uploadedImages.map((img) => img.publicId),
+      userId,
     };
 
     try {
@@ -99,23 +101,61 @@ export class TodosService implements OnModuleInit {
     }
   }
 
-  async findAll(): Promise<TodoResponse[]> {
-    const todos = await this.todosRepository.findAll();
+  async importTodos(
+    userId: string,
+    dtos: CreateTodoDto[],
+  ): Promise<TodoResponse[]> {
+    const results: TodoResponse[] = [];
+    for (const dto of dtos) {
+      this.validateDateRange(dto.startDate, dto.deadline);
+      const data: CreateTodoRecord = {
+        title: dto.title,
+        description: dto.description || '',
+        completed: false,
+        startDate: dto.startDate,
+        deadline: dto.deadline,
+        imageUrl: dto.imageUrl ?? null,
+        imagePublicId: null,
+        imageUrls: dto.imageUrl ? [dto.imageUrl] : [],
+        imagePublicIds: [],
+        userId,
+      };
+      const todo = await this.todosRepository.create(data);
+      results.push(this.toResponse(todo));
+    }
+    return results;
+  }
+
+  async uploadImage(file: Express.Multer.File): Promise<{ url: string }> {
+    if (file.size > 5 * 1024 * 1024) {
+      throw new BadRequestException('Each image size must be less than 5MB.');
+    }
+    if (!/^(image\/(jpeg|png|webp|gif))$/.test(file.mimetype)) {
+      throw new BadRequestException('Only JPEG, PNG, WEBP, and GIF images are allowed.');
+    }
+    const uploaded = await this.cloudinaryService.uploadImage(file);
+    return { url: uploaded.url };
+  }
+
+  async findAll(userId: string): Promise<TodoResponse[]> {
+    const todos = await this.todosRepository.findAll(userId);
     return todos.map((todo) => this.toResponse(todo));
   }
 
-  async findOne(id: string): Promise<TodoResponse> {
-    const todo = await this.getTodo(id);
+  async findOne(id: string, userId: string): Promise<TodoResponse> {
+    const todo = await this.getTodo(id, userId);
     return this.toResponse(todo);
   }
 
   async update(
     id: string,
+    userId: string,
     dto: UpdateTodoDto,
-    file?: Express.Multer.File,
+    files?: Express.Multer.File[],
   ): Promise<TodoResponse> {
-    const existing = await this.getTodo(id);
-    this.validateImageUpdate(dto, file);
+    const existing = await this.getTodo(id, userId);
+    this.validateFiles(files);
+    this.validateImageUpdate(dto, files);
 
     const data: UpdateTodoRecord = {};
     this.copyDefinedFields(dto, data);
@@ -125,20 +165,32 @@ export class TodosService implements OnModuleInit {
       data.deadline !== undefined ? data.deadline : existing.deadline,
     );
 
-    let uploadedImage: UploadedImage | undefined;
-    const shouldReplaceImage =
-      Boolean(file) || dto.removeImage === true || dto.imageUrl !== undefined;
+    const uploadedImages: UploadedImage[] = [];
+    const existingUrls = existing.imageUrls?.length
+      ? existing.imageUrls
+      : (existing.imageUrl ? [existing.imageUrl] : []);
+    const existingPublicIds = existing.imagePublicIds?.length
+      ? existing.imagePublicIds
+      : (existing.imagePublicId ? [existing.imagePublicId] : []);
 
-    if (file) {
-      uploadedImage = await this.cloudinaryService.uploadImage(file);
-      data.imageUrl = uploadedImage.url;
-      data.imagePublicId = uploadedImage.publicId;
+    if (files?.length) {
+      for (const file of files) {
+        uploadedImages.push(await this.cloudinaryService.uploadImage(file));
+      }
+      data.imageUrls = [...existingUrls, ...uploadedImages.map((image) => image.url)];
+      data.imagePublicIds = [...existingPublicIds, ...uploadedImages.map((image) => image.publicId)];
+      data.imageUrl = data.imageUrls[0] ?? null;
+      data.imagePublicId = data.imagePublicIds[0] ?? null;
     } else if (dto.removeImage === true || dto.imageUrl === null) {
       data.imageUrl = null;
       data.imagePublicId = null;
+      data.imageUrls = [];
+      data.imagePublicIds = [];
     } else if (dto.imageUrl !== undefined) {
-      data.imageUrl = dto.imageUrl;
-      data.imagePublicId = null;
+      data.imageUrls = dto.imageUrl ? [...existingUrls, dto.imageUrl] : existingUrls;
+      data.imagePublicIds = existingPublicIds;
+      data.imageUrl = data.imageUrls[0] ?? null;
+      data.imagePublicId = existingPublicIds[0] ?? null;
     }
 
     if (Object.keys(data).length === 0) {
@@ -146,28 +198,26 @@ export class TodosService implements OnModuleInit {
     }
 
     try {
-      const updated = await this.todosRepository.update(id, data);
+      const updated = await this.todosRepository.update(id, userId, data);
 
       if (!updated) {
         throw new NotFoundException('Todo not found.');
       }
 
-      if (shouldReplaceImage && existing.imagePublicId) {
-        await this.cleanupImage(existing.imagePublicId);
+      if (dto.removeImage === true || dto.imageUrl === null) {
+        for (const publicId of existingPublicIds) await this.cleanupImage(publicId);
       }
 
       return this.toResponse(updated);
     } catch (error) {
-      if (uploadedImage) {
-        await this.cleanupImage(uploadedImage.publicId);
-      }
+      for (const image of uploadedImages) await this.cleanupImage(image.publicId);
 
       throw error;
     }
   }
 
-  async delete(id: string): Promise<void> {
-    const deleted = await this.todosRepository.delete(id);
+  async delete(id: string, userId: string): Promise<void> {
+    const deleted = await this.todosRepository.delete(id, userId);
 
     if (!deleted) {
       throw new NotFoundException('Todo not found.');
@@ -182,8 +232,8 @@ export class TodosService implements OnModuleInit {
     }
   }
 
-  private async getTodo(id: string): Promise<TodoDocument> {
-    const todo = await this.todosRepository.findById(id);
+  private async getTodo(id: string, userId: string): Promise<TodoDocument> {
+    const todo = await this.todosRepository.findById(id, userId);
 
     if (!todo) {
       throw new NotFoundException('Todo not found.');
@@ -194,11 +244,11 @@ export class TodosService implements OnModuleInit {
 
   private validateImageUpdate(
     dto: UpdateTodoDto,
-    file?: Express.Multer.File,
+    files?: Express.Multer.File[],
   ): void {
-    if (file && (dto.removeImage === true || dto.imageUrl !== undefined)) {
+    if (files?.length && dto.removeImage === true) {
       throw new BadRequestException(
-        'Send either an image file, imageUrl, or removeImage, not more than one.',
+        'Images cannot be added and removed in the same update.',
       );
     }
 

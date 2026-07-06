@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CheckSquare, PencilSimple, Square, Trash } from "@phosphor-icons/react";
 import type { Todo } from "@/types/todo";
 
 type TodoCardProps = {
@@ -6,18 +7,10 @@ type TodoCardProps = {
   busy: boolean;
   onToggle: (todo: Todo) => void;
   onDelete: (todo: Todo) => void;
+  onEdit: (todo: Todo) => void;
 };
 
-function CheckIcon({ checked = false }: { checked?: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="4" y="4" width="16" height="16" rx="2" />
-      {checked ? <path d="m8 12 3 3 5-6" /> : null}
-    </svg>
-  );
-}
-
-export default function TodoCard({ todo, busy, onToggle, onDelete }: TodoCardProps) {
+export default function TodoCard({ todo, busy, onToggle, onDelete, onEdit }: TodoCardProps) {
   const startDate = todo.startDate
     ? new Date(`${todo.startDate}T12:00:00`).toLocaleDateString("en-GB")
     : "Not set";
@@ -74,10 +67,23 @@ export default function TodoCard({ todo, busy, onToggle, onDelete }: TodoCardPro
           type="button"
           title={todo.completed ? "Mark as pending" : "Mark as complete"}
           aria-label={todo.completed ? `Mark ${todo.title} as pending` : `Mark ${todo.title} as complete`}
+        disabled={busy}
+        onClick={() => onToggle(todo)}
+      >
+          {todo.completed ? (
+            <CheckSquare size={20} weight="fill" aria-hidden="true" />
+          ) : (
+            <Square size={20} weight="regular" aria-hidden="true" />
+          )}
+        </button>
+        <button
+          type="button"
+          title="Edit task"
+          aria-label={`Edit ${todo.title}`}
           disabled={busy}
-          onClick={() => onToggle(todo)}
+          onClick={() => onEdit(todo)}
         >
-          <CheckIcon checked={todo.completed} />
+          <PencilSimple size={20} weight="regular" aria-hidden="true" />
         </button>
         <button
           type="button"
@@ -86,9 +92,7 @@ export default function TodoCard({ todo, busy, onToggle, onDelete }: TodoCardPro
           disabled={busy}
           onClick={() => onDelete(todo)}
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M5 7h14M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5" />
-          </svg>
+          <Trash size={20} weight="regular" aria-hidden="true" />
         </button>
       </div>
       <p className="todo-card__dates">

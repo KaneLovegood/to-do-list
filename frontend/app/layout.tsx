@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+});
+
 export const metadata: Metadata = {
-  title: "Vista Lab | Todo planner",
-  description: "Plan, prioritize, and complete your daily tasks with Vista Lab.",
+  title: "Todo planner",
+  description: "Plan, prioritize, and complete your daily tasks with Todo planner.",
 };
 
 export default function RootLayout({
@@ -12,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${outfit.variable}`}>
       <body>{children}</body>
     </html>
   );

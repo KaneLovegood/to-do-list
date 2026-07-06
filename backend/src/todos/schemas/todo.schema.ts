@@ -35,10 +35,14 @@ export class Todo {
   @Prop({ type: [String], default: [] })
   imagePublicIds!: string[];
 
+  @Prop({ type: String, required: true })
+  userId!: string;
+
   createdAt!: Date;
   updatedAt!: Date;
 }
 
 export const TodoSchema = SchemaFactory.createForClass(Todo);
 
+TodoSchema.index({ userId: 1 });
 TodoSchema.index({ createdAt: -1 });

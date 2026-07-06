@@ -14,9 +14,10 @@ export type CreateTodoRecord = Pick<
   | 'imagePublicId'
   | 'imageUrls'
   | 'imagePublicIds'
+  | 'userId'
 >;
 
-export type UpdateTodoRecord = Partial<CreateTodoRecord>;
+export type UpdateTodoRecord = Partial<Omit<CreateTodoRecord, 'userId'>>;
 
 @Injectable()
 export class TodosRepository {
@@ -28,8 +29,8 @@ export class TodosRepository {
     return this.todoModel.create(data);
   }
 
-  findAll(): Promise<TodoDocument[]> {
-    return this.todoModel.find().sort({ createdAt: -1 }).exec();
+  findAll(userId: string): Promise<TodoDocument[]> {
+    return this.todoModel.find({ userId }).sort({ createdAt: -1 }).exec();
   }
 
   async migrateLegacyDates(): Promise<number> {
@@ -44,29 +45,29 @@ export class TodosRepository {
     return result.modifiedCount;
   }
 
-  findById(id: string): Promise<TodoDocument | null> {
+  findById(id: string, userId: string): Promise<TodoDocument | null> {
     if (!isObjectIdOrHexString(id)) {
       return Promise.resolve(null);
     }
 
-    return this.todoModel.findById(id).exec();
+    return this.todoModel.findOne({ _id: id, userId }).exec();
   }
 
-  update(id: string, data: UpdateTodoRecord): Promise<TodoDocument | null> {
+  update(id: string, userId: string, data: UpdateTodoRecord): Promise<TodoDocument | null> {
     if (!isObjectIdOrHexString(id)) {
       return Promise.resolve(null);
     }
 
     return this.todoModel
-      .findByIdAndUpdate(id, data, { new: true, runValidators: true })
+      .findOneAndUpdate({ _id: id, userId }, data, { new: true, runValidators: true })
       .exec();
   }
 
-  delete(id: string): Promise<TodoDocument | null> {
+  delete(id: string, userId: string): Promise<TodoDocument | null> {
     if (!isObjectIdOrHexString(id)) {
       return Promise.resolve(null);
     }
 
-    return this.todoModel.findByIdAndDelete(id).exec();
+    return this.todoModel.findOneAndDelete({ _id: id, userId }).exec();
   }
 }

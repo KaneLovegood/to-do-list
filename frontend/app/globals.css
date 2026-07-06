@@ -22,7 +22,7 @@ html {
 body {
   margin: 0;
   color: var(--ink);
-  background: #fff;
+  background: #fffdfb;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -69,19 +69,47 @@ a:focus-visible {
 }
 
 .welcome-heading span {
+  display: inline;
+}
+
+.welcome-heading__prompt {
+  margin-left: .38em;
   color: var(--muted);
 }
 
 @media (max-width: 640px) {
   .home-main {
-    width: min(calc(100% - 30px), 520px);
-    padding-top: 16px;
+    width: 100%;
+    padding: 24px 18px 36px;
   }
 
   .welcome-heading {
-    margin-bottom: 14px;
-    padding-left: 26px;
-    font-size: 1.26rem;
+    margin-bottom: 22px;
+    padding-left: 2px;
+    font-size: 1rem;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+  }
+
+  .welcome-heading span {
+    display: block;
+  }
+
+  .welcome-heading__greeting {
+    margin-bottom: 5px;
+    color: var(--salmon);
+    font-size: .84rem;
+    font-weight: 700;
+  }
+
+  .welcome-heading__prompt {
+    margin-left: 0;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.9rem, 9vw, 2.45rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -.045em;
   }
 }
 

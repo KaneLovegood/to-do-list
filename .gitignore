@@ -49,3 +49,12 @@ coverage/
 *.pem
 
 .agents/
+
+# Package manager stores
+.pnpm-store/
+
+# AI agent lock files
+skills-lock.json
+
+# Development screenshots and mockups
+.vista-*.png

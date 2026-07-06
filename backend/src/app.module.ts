@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { envValidationSchema } from './config/env.validation';
 import { TodosModule } from './todos/todos.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { TodosModule } from './todos/todos.module';
       }),
     }),
     TodosModule,
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}

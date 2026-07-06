@@ -10,4 +10,9 @@ export const envValidationSchema = Joi.object({
   CLOUDINARY_CLOUD_NAME: Joi.string().required(),
   CLOUDINARY_API_KEY: Joi.string().required(),
   CLOUDINARY_API_SECRET: Joi.string().required(),
+  BREVO_API_KEY: Joi.string().required(),
+  BREVO_SENDER_EMAIL: Joi.string().email().optional(),
+  BREVO_SENDER_NAME: Joi.string().optional(),
+  JWT_SECRET: Joi.string().required(),
+  JWT_REFRESH_SECRET: Joi.string().required(),
 });
