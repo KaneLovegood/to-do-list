@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.env.local
+.git
+pnpm-debug.log
+Dockerfile
+docker-compose*.yml
+README.md
