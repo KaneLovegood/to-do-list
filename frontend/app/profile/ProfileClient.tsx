@@ -16,10 +16,10 @@ import {
 import { FormEvent, useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { useAuth } from "@/lib/auth-context";
 import type { Gender } from "@/lib/auth-context";
 import styles from "./ProfilePage.module.css";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 type Status = { type: "success" | "error"; message: string } | null;
 
@@ -448,13 +448,10 @@ function ProfileContent() {
 
 export default function ProfileClient() {
   return (
-    <AuthProvider>
-      <div className="site-shell">
-        <Navbar />
-        <Toaster position="top-center" reverseOrder={false} />
-        <ProfileContent />
-        <Footer />
-      </div>
-    </AuthProvider>
+    <div className="site-shell">
+      <Navbar />
+      <ProfileContent />
+      <Footer />
+    </div>
   );
 }

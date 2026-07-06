@@ -176,6 +176,19 @@
   transform: translateY(-2px);
 }
 
+:global(.todo-card__details-link) {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+:global(.todo-card__details-link:focus-visible) {
+  outline: 3px solid rgb(159 67 67 / 55%);
+  outline-offset: -3px;
+}
+
 :global(.todo-card.is-complete) {
   opacity: .62;
 }
@@ -248,6 +261,7 @@
 
 :global(.todo-card__actions) {
   position: absolute;
+  z-index: 2;
   top: 12px;
   right: 11px;
   display: flex;

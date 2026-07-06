@@ -5,9 +5,7 @@ import Navbar from "@/components/Navbar";
 import TodoDashboard from "@/components/TodoDashboard";
 import AuthModal from "@/components/AuthModal";
 import NameModal from "@/components/NameModal";
-import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { TodoProvider } from "@/lib/todo-context";
-import { Toaster } from "react-hot-toast";
+import { useAuth } from "@/lib/auth-context";
 
 function MainContent() {
   const { user, isGuest, isLoading, displayName } = useAuth();
@@ -46,12 +44,5 @@ function MainContent() {
 }
 
 export default function Home() {
-  return (
-    <AuthProvider>
-      <TodoProvider>
-        <Toaster position="top-center" reverseOrder={false} />
-        <MainContent />
-      </TodoProvider>
-    </AuthProvider>
-  );
+  return <MainContent />;
 }

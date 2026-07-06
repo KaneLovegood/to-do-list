@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { CheckSquare, PencilSimple, Square, Trash } from "@phosphor-icons/react";
 import type { Todo } from "@/types/todo";
 
@@ -29,6 +30,11 @@ export default function TodoCard({ todo, busy, onToggle, onDelete, onEdit }: Tod
 
   return (
     <article className={`todo-card ${todo.completed ? "is-complete" : ""}`}>
+      <Link
+        href={`/todos/${encodeURIComponent(todo.id)}`}
+        className="todo-card__details-link"
+        aria-label={`View details for ${todo.title}`}
+      />
       <div className="todo-card__content">
         {imagesToShow.length > 0 ? (
           <div className="todo-card__images-container">
